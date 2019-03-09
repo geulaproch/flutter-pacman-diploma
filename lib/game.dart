@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/src/gestures/recognizer.dart';
 import 'package:pacman/components/component.dart';
 import 'package:pacman/components/food.dart';
 import 'package:pacman/components/ghost.dart';
@@ -15,7 +18,15 @@ class PacmanGame extends Game {
 
   final map = Map<Point, Component>();
 
-  Point playerPosition;
+  Point _playerPosition;
+  Point get playerPosition => _playerPosition;
+  set playerPosition (Point point) {
+    final player = map.remove(_playerPosition);
+    _playerPosition = point;
+    map[point] = player;
+  }
+
+  Size size;
 
   Player get player => map[playerPosition];
 
@@ -24,6 +35,8 @@ class PacmanGame extends Game {
     addFood();
     addPlayer();
     addGhosts();
+
+    //Flame.util.addGestureRecognizer(createTapRecognizer());
   }
 
   void addWalls() {
@@ -63,7 +76,8 @@ class PacmanGame extends Game {
   }
 
   void addPlayer() {
-    map[Point((columns/2).floor(), (rows/2).floor())] = Player();
+    playerPosition = Point((columns/2).floor(), (rows/2).floor());
+    map[playerPosition] = Player();
   }
 
   void addGhosts() {
@@ -92,6 +106,8 @@ class PacmanGame extends Game {
 
   @override
   void resize(Size size) {
+    this.size = size;
+
     mazeWidth = size.width;
     mazeStartX = 0;
 
@@ -101,5 +117,46 @@ class PacmanGame extends Game {
     mazeHeight = squareHeight * rows;
     mazeStartY = (size.height - mazeHeight) / 2;
   }
+/*
+  GestureRecognizer createTapRecognizer() {
+    return new TapGestureRecognizer()
+      ..onTapUp = (TapUpDetails details) => this.handleTap(details.globalPosition);
+  }
 
+  handleTap(Offset globalPosition) {
+
+  }*/
+
+  void movePlayer(offsetX, offsetY) {
+    var futurePosition = Point(playerPosition.x + offsetX, playerPosition.y + offsetY);
+    if (map[futurePosition] is Wall) {
+      return;
+    }
+
+    if (futurePosition.x < 0) {
+      futurePosition = Point(playerPosition.x + offsetX + columns, playerPosition.y + offsetY);
+    }
+
+    if (futurePosition.x >= columns) {
+      futurePosition = Point(0, playerPosition.y + offsetY);
+    }
+
+    playerPosition = futurePosition;
+  }
+
+  void onArrowLeft() {
+    movePlayer(-1, 0);
+  }
+
+  void onArrowUp() {
+    movePlayer(0, -1);
+  }
+
+  void onArrowDown() {
+    movePlayer(0, 1);
+  }
+
+  void onArrowRight() {
+    movePlayer(1, 0);
+  }
 }

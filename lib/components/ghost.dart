@@ -5,7 +5,7 @@ import 'package:pacman/components/component.dart';
 
 class Ghost extends Component {
   final paint = Paint()
-    ..color = Colors.lightBlueAccent;
+    ..color = Colors.teal;
 
   @override
   void render(Canvas canvas, double x, double y, double w, double h) {
