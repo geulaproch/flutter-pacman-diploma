@@ -1,12 +1,48 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pacman/game.dart';
 
 void main() {
-  final game = new PacmanGame();
+  final StreamController sb = StreamController();
+  final game = new PacmanGame(
+    onStateChanged: () {
+      sb.add(const Object());
+    }
+  );
+
   runApp(MaterialApp(
     home: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Expanded(child: game.widget),
+        StreamBuilder(
+          stream: sb.stream,
+          builder: (context, _) {
+            return Container(
+              color: Colors.teal,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text('Score', style: TextStyle(
+                        fontSize: 32,
+                        color: Colors.black,
+                        decoration: TextDecoration.none,
+                      ),),
+                    ),
+                    Text("${game.points}", style: TextStyle(
+                      fontSize: 32,
+                      color: Colors.black,
+                      decoration: TextDecoration.none,
+                    ),),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
         Container(
           color: Colors.teal,
           child: Row(

@@ -19,18 +19,34 @@ class PacmanGame extends Game {
   final map = Map<Point, Component>();
 
   Point _playerPosition;
+
+  VoidCallback onStateChanged;
+
   Point get playerPosition => _playerPosition;
   set playerPosition (Point point) {
+    print("set playerPosition - $point");
     final player = map.remove(_playerPosition);
-    _playerPosition = point;
-    map[point] = player;
+
+    if (point == null) {
+      map.remove(_playerPosition);
+      _playerPosition = null;
+    } else if (player != null) {
+      _playerPosition = point;
+      map[point] = player;
+    }
+
+    print("_playerPosition - $_playerPosition");
   }
 
   Size size;
 
   Player get player => map[playerPosition];
 
-  PacmanGame() {
+  int points = 0;
+
+  PacmanGame({
+    this.onStateChanged
+  }) {
     addWalls();
     addFood();
     addPlayer();
@@ -76,8 +92,10 @@ class PacmanGame extends Game {
   }
 
   void addPlayer() {
-    playerPosition = Point((columns/2).floor(), (rows/2).floor());
-    map[playerPosition] = Player();
+    final startingPosition = Point((columns/2).floor(), (rows/2).floor());
+    map[startingPosition] = Player();
+    _playerPosition = startingPosition;
+
   }
 
   void addGhosts() {
@@ -128,9 +146,17 @@ class PacmanGame extends Game {
   }*/
 
   void movePlayer(offsetX, offsetY) {
+    if (playerPosition == null) {
+      return;
+    }
+
     var futurePosition = Point(playerPosition.x + offsetX, playerPosition.y + offsetY);
     if (map[futurePosition] is Wall) {
       return;
+    }
+
+    if (map[futurePosition] is Ghost) {
+      die();
     }
 
     if (futurePosition.x < 0) {
@@ -139,6 +165,11 @@ class PacmanGame extends Game {
 
     if (futurePosition.x >= columns) {
       futurePosition = Point(0, playerPosition.y + offsetY);
+    }
+
+    if (map[futurePosition] is Food) {
+      points += 10;
+      onStateChanged();
     }
 
     playerPosition = futurePosition;
@@ -158,5 +189,11 @@ class PacmanGame extends Game {
 
   void onArrowRight() {
     movePlayer(1, 0);
+  }
+
+  void die() {
+    points = 0;
+    onStateChanged();
+    playerPosition = null;
   }
 }
