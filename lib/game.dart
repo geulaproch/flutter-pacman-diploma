@@ -114,11 +114,41 @@ class PacmanGame extends Game {
     });
   }
 
+  double elapsedTime = 0;
+  Random random = Random();
+
   @override
   void update(double t) {
+    final positionsOfGhosts = [];
+    elapsedTime += t;
+
     map.forEach((position, component) {
       component.update(t);
+      if (component is Ghost) {
+        positionsOfGhosts.add(position);
+      }
     });
+    if (elapsedTime > 1) {
+      positionsOfGhosts.forEach((position) {
+        var oldPosition = position;
+        var ghost = map.remove(position);
+        var newPoint;
+
+        do {
+          if (random.nextBool()) {
+            newPoint = Point<num>(oldPosition.x + (random.nextBool() ? 1 : -1), oldPosition.y);
+          } else {
+            newPoint = Point<num>(oldPosition.x, oldPosition.y + (random.nextBool() ? 1 : -1));
+          }
+        } while (
+          (map[newPoint] is Wall || map[newPoint] is Ghost || map[newPoint] is Player)
+          || (newPoint.x > columns || newPoint.x < 0 || newPoint.y > rows || newPoint.y < 0)
+        );
+
+        map[newPoint] = ghost;
+      });
+      elapsedTime = 0;
+    }
   }
 
   @override
