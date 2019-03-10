@@ -20,7 +20,7 @@ class Player extends Component {
   ], stepTime: 0.15, loop: true);
 
   final degToRad = pi / 180;
-  var direction = Facing.up;
+  var direction = Facing.right;
 
   @override
   void render(Canvas canvas, double x, double y, double w, double h) {

@@ -1,10 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/src/gestures/recognizer.dart';
 import 'package:pacman/components/component.dart';
 import 'package:pacman/components/food.dart';
 import 'package:pacman/components/ghost.dart';
@@ -51,7 +48,6 @@ class PacmanGame extends Game {
     addFood();
     addPlayer();
     addGhosts();
-    //Flame.util.addGestureRecognizer(createTapRecognizer());
   }
 
   void addWalls() {
@@ -73,6 +69,7 @@ class PacmanGame extends Game {
       for (var j = 2.0; j < columns - 2; j+=2) {
         if (Random().nextBool()) {
           map[Point(j, i)] = Wall();
+          map[Point(j+1, i)] = Wall();
         }
       }
     }
@@ -136,16 +133,18 @@ class PacmanGame extends Game {
 
     mazeHeight = squareHeight * rows;
     mazeStartY = (size.height - mazeHeight) / 2;
-  }
-/*
-  GestureRecognizer createTapRecognizer() {
-    return new TapGestureRecognizer()
-      ..onTapUp = (TapUpDetails details) => this.handleTap(details.globalPosition);
-  }
 
-  handleTap(Offset globalPosition) {
+    if (mazeHeight > size.height) {
+      mazeHeight = size.height;
+      mazeStartY = 0;
 
-  }*/
+      squareHeight = mazeHeight / rows;
+      squareWidth = squareHeight;
+
+      mazeWidth = squareWidth * columns;
+      mazeStartX = (size.width - mazeWidth) / 2;
+    }
+  }
 
   void movePlayer(offsetX, offsetY) {
     if (playerPosition == null) {
