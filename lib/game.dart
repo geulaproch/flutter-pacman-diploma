@@ -18,10 +18,10 @@ class PacmanGame extends Game {
   Point _playerPosition;
 
   VoidCallback onStateChanged;
+  VoidCallback onPlayerDead;
 
   Point get playerPosition => _playerPosition;
   set playerPosition (Point point) {
-    print("set playerPosition - $point");
     final player = map.remove(_playerPosition);
 
     if (point == null) {
@@ -31,8 +31,6 @@ class PacmanGame extends Game {
       _playerPosition = point;
       map[point] = player;
     }
-
-    print("_playerPosition - $_playerPosition");
   }
 
   Size size;
@@ -42,7 +40,8 @@ class PacmanGame extends Game {
   int points = 0;
 
   PacmanGame({
-    this.onStateChanged
+    this.onStateChanged,
+    this.onPlayerDead,
   }) {
     addWalls();
     addFood();
@@ -91,7 +90,6 @@ class PacmanGame extends Game {
     final startingPosition = Point((columns/2).floor(), (rows/2).floor());
     map[startingPosition] = Player();
     _playerPosition = startingPosition;
-
   }
 
   void addGhosts() {
@@ -105,6 +103,10 @@ class PacmanGame extends Game {
 
   @override
   void render(Canvas canvas) {
+    if (this.size == null) {
+      return;
+    }
+
     map.forEach((position, component) {
       component.render(canvas,
         (position.x * squareWidth) + mazeStartX,
@@ -128,11 +130,11 @@ class PacmanGame extends Game {
         positionsOfGhosts.add(position);
       }
     });
-    if (elapsedTime > 1) {
+    if (elapsedTime > 1 && player != null) {
       positionsOfGhosts.forEach((position) {
         var oldPosition = position;
-        var ghost = map.remove(position);
         var newPoint;
+        var ghost = map.remove(position);
 
         do {
           if (random.nextBool()) {
@@ -141,10 +143,13 @@ class PacmanGame extends Game {
             newPoint = Point<num>(oldPosition.x, oldPosition.y + (random.nextBool() ? 1 : -1));
           }
         } while (
-          (map[newPoint] is Wall || map[newPoint] is Ghost || map[newPoint] is Player)
+          (map[newPoint] is Wall || map[newPoint] is Ghost)
           || (newPoint.x > columns || newPoint.x < 0 || newPoint.y > rows || newPoint.y < 0)
         );
 
+        if (map[newPoint] is Player) {
+          die();
+        }
         map[newPoint] = ghost;
       });
       elapsedTime = 0;
@@ -207,28 +212,29 @@ class PacmanGame extends Game {
   }
 
   void onArrowLeft() {
-    movePlayer(-1, 0);
     player.direction = Facing.left;
+    movePlayer(-1, 0);
   }
 
   void onArrowUp() {
-    movePlayer(0, -1);
     player.direction = Facing.up;
+    movePlayer(0, -1);
   }
 
   void onArrowDown() {
-    movePlayer(0, 1);
     player.direction = Facing.down;
+    movePlayer(0, 1);
   }
 
   void onArrowRight() {
-    movePlayer(1, 0);
     player.direction = Facing.right;
+    movePlayer(1, 0);
   }
 
   void die() {
-    points = 0;
-    onStateChanged();
     playerPosition = null;
+    onPlayerDead();
   }
+
 }
+
