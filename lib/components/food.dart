@@ -30,7 +30,7 @@ class Food extends Component {
       case FoodType.small:
         return 'food_small.png';
       case FoodType.big:
-        return 'food.png';
+        return 'food_big.png';
     }
   }
 }

@@ -51,7 +51,6 @@ class PacmanGame extends Game {
     addFood();
     addPlayer();
     addGhosts();
-
     //Flame.util.addGestureRecognizer(createTapRecognizer());
   }
 
@@ -120,6 +119,9 @@ class PacmanGame extends Game {
 
   @override
   void update(double t) {
+    map.forEach((position, component) {
+      component.update(t);
+    });
   }
 
   @override
@@ -177,18 +179,22 @@ class PacmanGame extends Game {
 
   void onArrowLeft() {
     movePlayer(-1, 0);
+    player.direction = Facing.left;
   }
 
   void onArrowUp() {
     movePlayer(0, -1);
+    player.direction = Facing.up;
   }
 
   void onArrowDown() {
     movePlayer(0, 1);
+    player.direction = Facing.down;
   }
 
   void onArrowRight() {
     movePlayer(1, 0);
+    player.direction = Facing.right;
   }
 
   void die() {

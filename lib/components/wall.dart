@@ -16,5 +16,4 @@ class Wall extends Component {
 
     canvas.restore();
   }
-
 }
